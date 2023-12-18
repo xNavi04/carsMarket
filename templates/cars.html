@@ -1,0 +1,35 @@
+{% from 'bootstrap5/form.html' import render_form %}
+{% include 'header.html' %}
+<div class="container col-lg-4" style="margin-top: 150px;">
+  {{ render_form(form, novalidate=True) }}
+</div>
+
+<div class="container-fluid bg-trasparent my-5 p-5" style="position: relative">
+  <div class="row row-cols-1 row-cols-xs-2 row-cols-sm-2 row-cols-lg-4 g-3" style="margin-top: 40px;">
+      {% for advertisement in advertisements %}
+      {% if advertisement.verified == 1 and advertisement.blocked == 0 %}
+        <div class="col hp">
+      <div class="card h-100 shadow-sm">
+        <a href="{{ url_for('oneProduct', num=advertisement.id) }}">
+          <img src="data:{{ advertisement.image_mimetype }};base64,{{ b64encode(advertisement.image).decode('utf-8') }}" class="card-img-top" alt="product.title">
+        </a>
+
+        <div class="label-top shadow-sm">
+          <p class="text-white">{{advertisement.brand}}</p>
+        </div>
+        <div class="card-body">
+          <div class="clearfix mb-3">
+            <span class="float-start badge rounded-pill bg-success">{{advertisement.price}} PLN</span>
+          </div>
+          <div class="d-grid gap-2 my-4">
+            <a href="{{ url_for('oneProduct', num=advertisement.id) }}" class="btn btn-warning bold-btn">Look</a>
+          </div>
+        </div>
+      </div>
+    </div>
+      {% endif %}
+      {% endfor %}
+  </div>
+</div>
+
+{% include 'footer.html' %}

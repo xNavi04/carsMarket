@@ -1,0 +1,51 @@
+{% include 'header.html' %}
+<div class="container" style="background-color: white; margin-top: 150px;">
+    <table id="example" class="table table-striped" style="width:100%">
+        <thead>
+            <tr>
+                <th>Brand</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Data</th>
+                <th>Price</th>
+                <th>Photo</th>
+                <th>Limitations</th>
+                <th>Delete</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for advertisement in advertisements %}
+            <tr>
+                <td>{{advertisement.brand}}</td>
+                <td>{{advertisement.name}}</td>
+                <td>{{advertisement.description}}</td>
+                <td>{{advertisement.data}}</td>
+                <td>{{advertisement.price}}</td>
+                <th><a href="{{ url_for('checkImage', num=advertisement.id) }}" target="_blank">Photo</a></th>
+                {% if advertisement.blocked == 0 %}
+                <th><a href="{{ url_for('blockAdv', num=advertisement.id) }}">Block</a></th>
+                {% else %}
+                <th><a href="{{ url_for('unblockAdv', num=advertisement.id) }}">Unblock</a></th>
+                {% endif %}
+                <th><a href="{{ url_for('denyAdvm', num=advertisement.id) }}">Delete</a></th>
+                <th>Status</th>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Brand</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Data</th>
+                <th>Price</th>
+                <th>Photo</th>
+                <th>Limitations</th>
+                <th>Delete</th>
+                <th>Status</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% include 'footer.html' %}

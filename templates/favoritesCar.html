@@ -1,0 +1,29 @@
+{% include 'header.html' %}
+
+<div class="container-fluid bg-trasparent my-5 p-5" style="position: relative">
+  <div class="row row-cols-1 row-cols-xs-2 row-cols-sm-2 row-cols-lg-4 g-3" style="margin-top: 40px;">
+      {% for advertisement in advertisements %}
+        <div class="col hp">
+      <div class="card h-100 shadow-sm">
+        <a href="https://amzn.to/42dsdGC" target="_blank">
+          <img src="data:{{ advertisement.advertisement.image_mimetype }};base64,{{ b64encode(advertisement.advertisement.image).decode('utf-8') }}" class="card-img-top" alt="product.title">
+        </a>
+
+        <div class="label-top shadow-sm">
+          <p class="text-white">{{advertisement.advertisement.brand}}</p>
+        </div>
+        <div class="card-body">
+          <div class="clearfix mb-3">
+            <span class="float-start badge rounded-pill bg-success">{{advertisement.advertisement.price}} PLN</span>
+          </div>
+          <div class="d-grid gap-2 my-4">
+            <a href="{{ url_for('oneProduct', num=advertisement.advertisement.id) }}" class="btn btn-warning bold-btn">Look</a>
+          </div>
+        </div>
+      </div>
+    </div>
+      {% endfor %}
+  </div>
+</div>
+
+{% include 'footer.html' %}

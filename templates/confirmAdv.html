@@ -1,0 +1,46 @@
+{% include 'header.html' %}
+<div class="container" style="background-color: white; margin-top: 150px;">
+    <table id="example" class="table table-striped" style="width:100%">
+        <thead>
+            <tr>
+                <th>Brand</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Data</th>
+                <th>Price</th>
+                <th>Photo</th>
+                <th>Allow</th>
+                <th>Deny</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for advertisement in advertisements %}
+        {% if advertisement.verified == 0 %}
+            <tr>
+                <td>{{advertisement.brand}}</td>
+                <td>{{advertisement.name}}</td>
+                <td>{{advertisement.description}}</td>
+                <td>{{advertisement.data}}</td>
+                <td>{{advertisement.price}}</td>
+                <th><a href="{{ url_for('checkImage', num=advertisement.id) }}">Photo</a></th>
+                <th><a href="{{ url_for('allowAdv', num=advertisement.id) }}">Allow</a></th>
+                <th><a href="{{ url_for('denyAdv', num=advertisement.id) }}">Deny</a></th>
+            </tr>
+        {% endif %}
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Brand</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Data</th>
+                <th>Price</th>
+                <th>Photo</th>
+                <th>Allow</th>
+                <th>Deny</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% include 'footer.html' %}

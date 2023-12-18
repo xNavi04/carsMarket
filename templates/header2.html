@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', filename='styles2.css') }}" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Hello, world!</title>
+    <script defer src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script defer src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script defer src="static/scripts.js"></script>
+  </head>
+  <body>
+    <header class="mb-5 fixed-top">
+        <nav class="navbar navbar-expand-lg navbar-light bg-transparent">
+              <div class="container-fluid">
+                <a class="navbar-brand" href="#">LOGO</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end mx-5" id="navbarNavDropdown">
+                  <ul class="navbar-nav justify-content-end navbarFont">
+                    <li class="nav-item">
+                      <a class="nav-link" aria-current="page" href="{{ url_for('indexPage') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="{{ url_for('carsPage') }}">Cars</a>
+                    </li>
+                    {% if not logged_in %}
+                    <li class="nav-item">
+                      <a class="nav-link" href="{{ url_for('loginPage') }}">Sign in</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="{{ url_for('registerPage') }}">Register</a>
+                    </li>
+                    {% endif %}
+                    {% if logged_in %}
+                    <li class="nav-item">
+                      <a class="nav-link" href="{{ url_for('addAdvertisement') }}">Add your car</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="{{ url_for('logoutPage') }}">Logout</a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.id == 1 %}
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Admin section
+                      </a>
+                      <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <li><a class="dropdown-item" href="{{ url_for('confirmAdv') }}">Allow or Deny</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('manageAdv') }}">Manage with cars</a></li>
+                      </ul>
+                    </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            </nav>
+    </header>

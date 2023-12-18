@@ -1,0 +1,26 @@
+{% include 'header.html' %}
+<div class="container col-xxl-8 px-4 py-3 border shadow-lg" style="margin-top: 150px;">
+    <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+      <div class="col-10 col-sm-8 col-lg-6">
+        <img src="data:{{ advertisement.image_mimetype }};base64,{{ b64encode(advertisement.image).decode('utf-8') }}"  class="d-block mx-lg-auto img-fluid rounded-circle" alt="Bootstrap Themes" width="700" height="500" loading="lazy">
+      </div>
+      <div class="col-lg-6 px-5">
+        <h1 class="display-5 fw-bold lh-1 mb-3 mx-5">{{advertisement.brand}}</h1>
+        <h2 class="mb-3 mx-5">{{advertisement.name}}</h2>
+        <h4 class="mb-3 mx-5">{{advertisement.price}} PLN</h4>
+        <div class="mx-5">
+          {{advertisement.description|safe}}
+        </div>
+          <p class="mx-5">Numer itd</p>
+        <div class="d-flex justify-content-center mt-5">
+          {% if favorite == 2 %}
+          {% elif not favorite == 1 %}
+          <a href="{{ url_for('addToFavorites', num=advertisement.id) }}"><button type="button" class="btn btn-outline-danger">add to Favorites</button></a>
+          {% else %}
+          <a href="{{ url_for('deleteFromFavorites', num=advertisement.id) }}"><button type="button" class="btn btn-outline-danger">delete from Favorites</button></a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% include 'footer.html' %}
