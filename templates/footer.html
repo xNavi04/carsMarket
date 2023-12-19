@@ -6,6 +6,17 @@
   </div>
   <!-- Copyright -->
 </footer>
+    <script>
+        // Funkcja do ustawiania paska przewijania na samym dole kontenera
+        function scrollToBottom() {
+            var messageContainer = document.getElementById("message-container");
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        // Wywołaj funkcję po załadowaniu strony
+        window.onload = scrollToBottom;
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   </body>
 </html>

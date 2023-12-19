@@ -22,7 +22,7 @@
                 <td>{{advertisement.description}}</td>
                 <td>{{advertisement.data}}</td>
                 <td>{{advertisement.price}}</td>
-                <th><a href="{{ url_for('checkImage', num=advertisement.id) }}">Photo</a></th>
+                <th><a href="{{ url_for('checkImage', num=advertisement.id) }}" target="_blank">Photo</a></th>
                 <th><a href="{{ url_for('allowAdv', num=advertisement.id) }}">Allow</a></th>
                 <th><a href="{{ url_for('denyAdv', num=advertisement.id) }}">Deny</a></th>
             </tr>

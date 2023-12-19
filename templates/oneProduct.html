@@ -19,6 +19,7 @@
           {% else %}
           <a href="{{ url_for('deleteFromFavorites', num=advertisement.id) }}"><button type="button" class="btn btn-outline-danger">delete from Favorites</button></a>
           {% endif %}
+          <a href="{{ url_for('createChat', num=advertisement.owner.id) }}"><button type="button" class="btn btn-outline-light mx-5">Send message to owner</button></a>
         </div>
       </div>
     </div>

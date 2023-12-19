@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, abort, Response
+from flask import Flask, render_template, request, redirect, url_for, abort, Response, flash, session
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
@@ -6,16 +6,18 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from forms import CreateCars, ChooseBrand
 from base64 import b64encode
-from sqlalchemy.orm import relationship
 from datetime import datetime
 from functools import wraps
 from flask_ckeditor import CKEditor
+from sqlalchemy import or_, and_
+
 
 
 app = Flask(__name__)
 Bootstrap5(app)
 app.config['SECRET_KEY'] = "adfa789y6789dsagfghjkdf"
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
+#app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://xNavi04:telefon04@database-1.cdq5bzc5st5i.eu-north-1.rds.amazonaws.com:5432/"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy()
 db.init_app(app)
@@ -62,8 +64,12 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
 
-    advertisements = relationship("Advertisement", back_populates="owner")
-    favoriteAdvertisements = relationship("FavoriteAdvertisement", back_populates="owner")
+    advertisements = db.relationship("Advertisement", back_populates="owner")
+    favoriteAdvertisements = db.relationship("FavoriteAdvertisement", back_populates="owner")
+    rooms_owner = db.relationship("Room", back_populates="owner", foreign_keys="Room.owner_id")
+    rooms_host = db.relationship("Room", back_populates="host_user", foreign_keys="Room.user_id")
+    messages = db.relationship("Message", back_populates="owner")
+
 class Advertisement(db.Model):
     __tablename__ = "advertisement"
     id = db.Column(db.Integer, primary_key=True)
@@ -80,16 +86,36 @@ class Advertisement(db.Model):
     blocked = db.Column(db.Integer, nullable=False)
     number = db.Column(db.Integer, nullable=False)
 
-    owner = relationship("User", back_populates="advertisements")
-    favoriteAdvertisements = relationship("FavoriteAdvertisement", back_populates="advertisement")
+    owner = db.relationship("User", back_populates="advertisements")
+    favoriteAdvertisements = db.relationship("FavoriteAdvertisement", back_populates="advertisement")
 
 class FavoriteAdvertisement(db.Model):
     __tablename__ = "favoriteAdvertisements"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     advertisement_id = db.Column(db.Integer, db.ForeignKey("advertisement.id"))
-    owner = relationship("User", back_populates="favoriteAdvertisements")
-    advertisement = relationship("Advertisement", back_populates="favoriteAdvertisements")
+    owner = db.relationship("User", back_populates="favoriteAdvertisements")
+    advertisement = db.relationship("Advertisement", back_populates="favoriteAdvertisements")
+
+class Room(db.Model):
+    __tablename__ = "rooms"
+    id = db.Column(db.Integer, primary_key=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    owner = db.relationship("User", back_populates="rooms_owner", foreign_keys=[owner_id])
+    host_user = db.relationship("User", back_populates="rooms_host", foreign_keys=[user_id])
+    data = db.Column(db.String, nullable=False)
+    messages = db.relationship("Message", back_populates="room")
+
+class Message(db.Model):
+    __tablename__ = "messages"
+    id = db.Column(db.Integer, primary_key=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    room_id = db.Column(db.Integer, db.ForeignKey("rooms.id"))
+    context = db.Column(db.String, nullable=False)
+    data = db.Column(db.String, nullable=False)
+    owner = db.relationship("User", back_populates="messages")
+    room = db.relationship("Room", back_populates="messages")
 
 with app.app_context():
     db.create_all()
@@ -99,6 +125,7 @@ with app.app_context():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> HOME PAGE <<<<<<<<<<<######################################
+
 
 @app.route("/")
 def indexPage():
@@ -117,7 +144,7 @@ def loginPage():
         password = request.form["password"]
         user = db.session.execute(db.Select(User).where(User.email == email)).scalar()
         if email == "" or password == "":
-            alert = "Something is empy!"
+            alert = "Something is empty!"
         elif not user:
             alert = "This user is not exist!"
         elif check_password_hash(user.password, password):
@@ -198,17 +225,11 @@ def addAdvertisement():
         filename = secure_filename(file.filename)
         mimetype = file.mimetype
         image = file.read()
-        context = {
-            'form': form,
-            'image': image,
-            'mimetype': mimetype,
-            'b64encode': b64encode,
-            'logged_in': current_user.is_authenticated
-        }
-        new_advertisement = Advertisement(name=name, brand=brand, description=description, data=datetime.now().strftime("%Y - %m - %d"), image_name=filename, image=image, image_mimetype=mimetype, owner=current_user, price=price, verified=0, blocked=0)
+        number = form.phone.data
+        new_advertisement = Advertisement(name=name, brand=brand, description=description, data=datetime.now().strftime("%Y - %m - %d"), image_name=filename, image=image, image_mimetype=mimetype, owner=current_user, price=price, number=number, verified=0, blocked=0)
         db.session.add(new_advertisement)
         db.session.commit()
-        return render_template("searchCar.html", **context)
+        return redirect(url_for("indexPage"))
     return render_template("searchCar.html", form=form, logged_in=current_user.is_authenticated)
 #########################>>>>>>>>>>>>>>>>>>>> ADD ADVERTISEMENT <<<<<<<<<<<######################################
 
@@ -328,15 +349,122 @@ def oneProduct(num):
 
 
 #########################>>>>>>>>>>>>>>>>>>>> FAVORITES CARS PAGE <<<<<<<<<<<######################################
-@app.route("/favoritesCars")
+@app.route("/favoriteCars")
 @login_required
 def favoriteCars():
     advertisements = db.session.execute(db.select(FavoriteAdvertisement).where(FavoriteAdvertisement.user_id == current_user.id)).scalars().all()
     for advertisement in advertisements:
         if advertisement.advertisement.blocked == 1:
             advertisements.remove(advertisement)
-    return render_template("favoritesCar.html", advertisements=advertisements, b64encode=b64encode)
+    return render_template("favoritesCar.html", advertisements=advertisements, b64encode=b64encode, logged_in=current_user.is_authenticated)
 #########################>>>>>>>>>>>>>>>>>>>> FAVORITES CARS PAGE <<<<<<<<<<<######################################
+
+
+#########################>>>>>>>>>>>>>>>>>>>> CHAT PAGE <<<<<<<<<<<######################################
+@app.route("/chat/<int:num>", methods=["POST", "GET"])
+def createChat(num):
+    if current_user.id == num:
+        return abort(404)
+    room = db.session.execute(db.select(Room).where(Room.owner_id == current_user.id, Room.user_id == num)).scalar()
+    if room:
+        print("1")
+        if request.method == "POST":
+            chat = request.form["chat"]
+            if chat != "":
+                print(f"room0: {room}")
+                new_message = Message(room=room, owner=current_user, context=chat, data=datetime.now().strftime("%H:%M  %A"))
+                db.session.add(new_message)
+                db.session.commit()
+            return redirect(url_for("createChat", num=num))
+        rooms = db.session.execute(db.select(Room)).scalars().all()
+        users = []
+        for room in rooms:
+            if room.owner.id == current_user.id or room.host_user.id == current_user.id:
+                user = db.session.execute(db.select(User).where(User.id == room.owner.id)).scalar_one()
+                if user not in users and user.id is not current_user.id:
+                    users.append(user)
+                user = db.session.execute(db.select(User).where(User.id == room.host_user.id)).scalar_one()
+                if user not in users and user.id is not current_user.id:
+                    users.append(user)
+        room = db.session.execute(db.select(Room).where(Room.owner_id == current_user.id, Room.user_id == num)).scalar()
+        amount_users = len(room.messages)
+        return render_template("chat.html", messages=room.messages, users=users, logged_in=current_user.id, foreign_user=room.host_user, amount_users=amount_users)
+    room = db.session.execute(db.select(Room).where(Room.owner_id == num, Room.user_id == current_user.id)).scalar()
+    if room:
+        print("2")
+        if request.method == "POST":
+            chat = request.form["chat"]
+            if chat != "":
+                print(f"room: {room}")
+                new_message = Message(room=room, owner=current_user, context=chat, data=datetime.now().strftime("%H:%M  %A"))
+                db.session.add(new_message)
+                db.session.commit()
+            return redirect(url_for("createChat", num=num))
+        rooms = db.session.execute(db.select(Room)).scalars().all()
+        users = []
+        for room in rooms:
+            if room.owner.id == current_user.id or room.host_user.id == current_user.id:
+                user = db.session.execute(db.select(User).where(User.id == room.owner.id)).scalar_one()
+                if user not in users and user.id is not current_user.id:
+                    users.append(user)
+                user = db.session.execute(db.select(User).where(User.id == room.host_user.id)).scalar_one()
+                if user not in users and user.id is not current_user.id:
+                    users.append(user)
+        room = db.session.execute(db.select(Room).where(Room.owner_id == num, Room.user_id == current_user.id)).scalar()
+        amount_users = len(room.messages)
+        return render_template("chat.html", messages=room.messages, users=users, logged_in=current_user.id, foreign_user=room.owner, amount_users=amount_users)
+    host_user = db.get_or_404(User, num)
+    print("to")
+    new_room = Room(owner=current_user, host_user=host_user, data="adsf")
+    db.session.add(new_room)
+    db.session.commit()
+    return redirect(url_for("createChat", num=num))
+
+@app.route("/deleteChat/<int:num>")
+def deleteChat(num):
+    room = Room.query.filter(
+        or_(
+            and_(Room.owner_id == num, Room.user_id == current_user.id),
+            and_(Room.owner_id == current_user.id, Room.user_id == num)
+        )
+    ).first()
+    if room:
+        db.session.delete(room)
+        db.session.commit()
+        return redirect(url_for("indexPage"))
+    else:
+        return abort(404)
+
+@app.route("/chat")
+def chat():
+    room = Room.query.filter(
+        or_(
+            and_(Room.owner_id == current_user.id),
+            and_(Room.user_id == current_user.id)
+        )
+    ).order_by(Room.id.desc()).first()
+    print(room)
+    try:
+        if current_user.id == room.owner_id:
+            return redirect(url_for("createChat", num=room.user_id))
+        elif current_user.id == room.user_id:
+            return redirect(url_for("createChat", num=room.owner_id))
+        else:
+            return abort(404)
+    except Exception:
+        return render_template("Error.html")
+
+
+@app.route("/deleteMessage/<int:num>/<int:userId>")
+def deleteMessage(num, userId):
+    message = db.session.execute(db.select(Message).where(Message.id == num)).scalar()
+    if message.owner_id == current_user.id:
+        db.session.delete(message)
+        db.session.commit()
+        return redirect(url_for("createChat", num=userId))
+    else:
+        return redirect(url_for("indexPage"))
+#########################>>>>>>>>>>>>>>>>>>>> CHAT PAGE <<<<<<<<<<<######################################
 
 
 
