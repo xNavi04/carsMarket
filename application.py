@@ -13,17 +13,17 @@ from sqlalchemy import or_, and_
 
 
 
-app = Flask(__name__)
-Bootstrap5(app)
-app.config['SECRET_KEY'] = "adfa789y6789dsagfghjkdf"
-#app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://xNavi04:telefon04@database-1.cdq5bzc5st5i.eu-north-1.rds.amazonaws.com:5432/"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+application = Flask(__name__)
+Bootstrap5(application)
+application.config['SECRET_KEY'] = "adfa789y6789dsagfghjkdf"
+application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
+#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://xNavi04:telefon04@database-1.cdq5bzc5st5i.eu-north-1.rds.amazonaws.com:5432/"
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy()
-db.init_app(app)
-CKEditor(app)
-login_manager = LoginManager(app)
-login_manager.init_app(app)
+db.init_app(application)
+CKEditor(application)
+login_manager = LoginManager(application)
+login_manager.init_app(application)
 
 
 #########################>>>>>>>>>>>>>>>>>>>> DECORATORS <<<<<<<<<<<######################################
@@ -117,7 +117,7 @@ class Message(db.Model):
     owner = db.relationship("User", back_populates="messages")
     room = db.relationship("Room", back_populates="messages")
 
-with app.app_context():
+with application.app_context():
     db.create_all()
 #########################>>>>>>>>>>>>>>>>>>>> DATABASE <<<<<<<<<<<######################################
 
@@ -127,7 +127,7 @@ with app.app_context():
 #########################>>>>>>>>>>>>>>>>>>>> HOME PAGE <<<<<<<<<<<######################################
 
 
-@app.route("/")
+@application.route("/")
 def indexPage():
     return render_template("index.html", logged_in=current_user.is_authenticated)
 #########################>>>>>>>>>>>>>>>>>>>> HOME PAGE <<<<<<<<<<<######################################
@@ -135,7 +135,7 @@ def indexPage():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> LOGIN PAGE<<<<<<<<<<<######################################
-@app.route("/login", methods=["POST", "GET"])
+@application.route("/login", methods=["POST", "GET"])
 @notlogin
 def loginPage():
     alert = ""
@@ -158,7 +158,7 @@ def loginPage():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> REGISTER PAGE<<<<<<<<<<<######################################
-@app.route("/register", methods=["POST", "GET"])
+@application.route("/register", methods=["POST", "GET"])
 @notlogin
 def registerPage():
     alerts = []
@@ -188,7 +188,7 @@ def registerPage():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> LOGOUT PAGE<<<<<<<<<<<######################################
-@app.route("/logout")
+@application.route("/logout")
 @login_required
 def logoutPage():
     logout_user()
@@ -197,7 +197,7 @@ def logoutPage():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> PRODUCTS PAGE <<<<<<<<<<<######################################
-@app.route("/cars", methods=["POST", "GET"])
+@application.route("/cars", methods=["POST", "GET"])
 def carsPage():
     form = ChooseBrand()
     if form.validate_on_submit():
@@ -212,7 +212,7 @@ def carsPage():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> ADD ADVERTISEMENT <<<<<<<<<<<######################################
-@app.route("/addAdvertisement", methods=["GET", "POST"])
+@application.route("/addAdvertisement", methods=["GET", "POST"])
 @login_required
 def addAdvertisement():
     form = CreateCars()
@@ -235,7 +235,7 @@ def addAdvertisement():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> CONFIRM ADVERTISEMENT BY ADMIN <<<<<<<<<<<######################################
-@app.route("/confirmAdv")
+@application.route("/confirmAdv")
 @adminonly
 def confirmAdv():
     addvertisements = db.session.execute(db.select(Advertisement)).scalars().all()
@@ -245,7 +245,7 @@ def confirmAdv():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> CHECK IMAGE <<<<<<<<<<<######################################
-@app.route("/checkImage/<int:num>")
+@application.route("/checkImage/<int:num>")
 @adminonly
 def checkImage(num):
     advertisement = db.get_or_404(Advertisement, num)
@@ -255,7 +255,7 @@ def checkImage(num):
 
 
 #########################>>>>>>>>>>>>>>>>>>>> MANAGE ADVERTISEMENTS <<<<<<<<<<<######################################
-@app.route("/allowAdv/<int:num>")
+@application.route("/allowAdv/<int:num>")
 @adminonly
 def allowAdv(num):
     advertisement = db.get_or_404(Advertisement, num)
@@ -263,7 +263,7 @@ def allowAdv(num):
     db.session.commit()
     return redirect(url_for("confirmAdv"))
 
-@app.route("/allowAdv/<int:num>")
+@application.route("/allowAdv/<int:num>")
 @adminonly
 def denyAdv(num):
     advertisement = db.get_or_404(Advertisement, num)
@@ -271,7 +271,7 @@ def denyAdv(num):
     db.session.commit()
     return redirect(url_for("confirmAdv"))
 
-@app.route("/allowAdvm/<int:num>")
+@application.route("/allowAdvm/<int:num>")
 @adminonly
 def denyAdvm(num):
     favoriteAdvertisements = db.session.execute(db.select(FavoriteAdvertisement).where(FavoriteAdvertisement.advertisement_id == num)).scalars().all()
@@ -283,7 +283,7 @@ def denyAdvm(num):
     db.session.commit()
     return redirect(url_for("manageAdv"))
 
-@app.route("/blockAdv/<int:num>")
+@application.route("/blockAdv/<int:num>")
 @adminonly
 def blockAdv(num):
     advertisement = db.get_or_404(Advertisement, num)
@@ -291,7 +291,7 @@ def blockAdv(num):
     db.session.commit()
     return redirect(url_for("manageAdv"))
 
-@app.route("/unblockAdv<int:num>")
+@application.route("/unblockAdv<int:num>")
 @adminonly
 def unblockAdv(num):
     advertisement = db.get_or_404(Advertisement, num)
@@ -300,13 +300,13 @@ def unblockAdv(num):
     return redirect(url_for("manageAdv"))
 
 
-@app.route("/manageAdv")
+@application.route("/manageAdv")
 @adminonly
 def manageAdv():
     advertisements = db.session.execute(db.Select(Advertisement).where(Advertisement.verified == 1)).scalars().all()
     return render_template("manageAdv.html", advertisements=advertisements, logged_in=current_user.is_authenticated)
 
-@app.route("/addToFavorites/<int:num>")
+@application.route("/addToFavorites/<int:num>")
 @login_required
 def addToFavorites(num):
     favoriteCars = db.session.execute(db.select(FavoriteAdvertisement).where(FavoriteAdvertisement.user_id == current_user.id)).scalars().all()
@@ -320,7 +320,7 @@ def addToFavorites(num):
     return redirect(url_for("favoriteCars"))
 
 
-@app.route("/deleteFromFavorites/<int:num>")
+@application.route("/deleteFromFavorites/<int:num>")
 @login_required
 def deleteFromFavorites(num):
     favoriteCar = db.session.execute(db.select(FavoriteAdvertisement).where(FavoriteAdvertisement.advertisement_id == num, FavoriteAdvertisement.user_id == current_user.id)).scalar()
@@ -333,7 +333,7 @@ def deleteFromFavorites(num):
 
 
 #########################>>>>>>>>>>>>>>>>>>>> ONE PRODUCT PAGE <<<<<<<<<<<######################################
-@app.route("/car/<int:num>")
+@application.route("/car/<int:num>")
 def oneProduct(num):
     advertisement = db.get_or_404(Advertisement, num)
     try:
@@ -349,7 +349,7 @@ def oneProduct(num):
 
 
 #########################>>>>>>>>>>>>>>>>>>>> FAVORITES CARS PAGE <<<<<<<<<<<######################################
-@app.route("/favoriteCars")
+@application.route("/favoriteCars")
 @login_required
 def favoriteCars():
     advertisements = db.session.execute(db.select(FavoriteAdvertisement).where(FavoriteAdvertisement.user_id == current_user.id)).scalars().all()
@@ -361,7 +361,7 @@ def favoriteCars():
 
 
 #########################>>>>>>>>>>>>>>>>>>>> CHAT PAGE <<<<<<<<<<<######################################
-@app.route("/chat/<int:num>", methods=["POST", "GET"])
+@application.route("/chat/<int:num>", methods=["POST", "GET"])
 def createChat(num):
     if current_user.id == num:
         return abort(404)
@@ -420,7 +420,7 @@ def createChat(num):
     db.session.commit()
     return redirect(url_for("createChat", num=num))
 
-@app.route("/deleteChat/<int:num>")
+@application.route("/deleteChat/<int:num>")
 def deleteChat(num):
     room = Room.query.filter(
         or_(
@@ -435,7 +435,7 @@ def deleteChat(num):
     else:
         return abort(404)
 
-@app.route("/chat")
+@application.route("/chat")
 def chat():
     room = Room.query.filter(
         or_(
@@ -455,7 +455,7 @@ def chat():
         return render_template("Error.html")
 
 
-@app.route("/deleteMessage/<int:num>/<int:userId>")
+@application.route("/deleteMessage/<int:num>/<int:userId>")
 def deleteMessage(num, userId):
     message = db.session.execute(db.select(Message).where(Message.id == num)).scalar()
     if message.owner_id == current_user.id:
@@ -468,11 +468,11 @@ def deleteMessage(num, userId):
 
 
 
-@app.route("/contact")
+@application.route("/contact")
 def contact():
     return render_template("chat.html")
 
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    application.run(host="0.0.0.0", port=80, debug=True)
