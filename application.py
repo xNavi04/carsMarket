@@ -115,6 +115,14 @@ class Message(db.Model):
     owner = db.relationship("User", back_populates="messages")
     room = db.relationship("Room", back_populates="messages")
 
+class ContactMessage(db.Model):
+    __tablename__ = "contactMessages"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False)
+    subject = db.Column(db.String, nullable=False)
+    message = db.Column(db.String, nullable=False)
+
 with application.app_context():
     db.create_all()
 #########################>>>>>>>>>>>>>>>>>>>> DATABASE <<<<<<<<<<<######################################
@@ -360,6 +368,7 @@ def favoriteCars():
 
 #########################>>>>>>>>>>>>>>>>>>>> CHAT PAGE <<<<<<<<<<<######################################
 @application.route("/chat/<int:num>", methods=["POST", "GET"])
+@login_required
 def createChat(num):
     if current_user.id == num:
         return abort(404)
@@ -419,6 +428,7 @@ def createChat(num):
     return redirect(url_for("createChat", num=num))
 
 @application.route("/deleteChat/<int:num>")
+@login_required
 def deleteChat(num):
     room = Room.query.filter(
         or_(
@@ -434,6 +444,7 @@ def deleteChat(num):
         return abort(404)
 
 @application.route("/chat")
+@login_required
 def chat():
     room = Room.query.filter(
         or_(
@@ -454,6 +465,7 @@ def chat():
 
 
 @application.route("/deleteMessage/<int:num>/<int:userId>")
+@login_required
 def deleteMessage(num, userId):
     message = db.session.execute(db.select(Message).where(Message.id == num)).scalar()
     if message.owner_id == current_user.id:
@@ -466,11 +478,26 @@ def deleteMessage(num, userId):
 
 
 
-@application.route("/contact")
+@application.route("/contact", methods=["POST", "GET"])
 def contact():
-    return render_template("chat.html")
+    alerts = []
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        subject = request.form["subject"]
+        message = request.form["message"]
+        if name == "" or email == "" or subject == "" or message == "":
+            alerts.append("Something is empty!")
+        elif "@" not in email:
+            alerts.append("Wrong email!")
+        else:
+            new_contactMessage = ContactMessage(name=name, email=email, subject=subject, message=message)
+            db.session.add(new_contactMessage)
+            db.session.commit()
+
+    return render_template("contact.html", alerts=alerts, logged_in = current_user.is_authenticated)
 
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run(host="0.0.0.0", debug=True)
