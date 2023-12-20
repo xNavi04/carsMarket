@@ -16,8 +16,8 @@ from sqlalchemy import or_, and_
 application = Flask(__name__)
 Bootstrap5(application)
 application.config['SECRET_KEY'] = "adfa789y6789dsagfghjkdf"
-application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
-#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://xNavi04:telefon04@database-1.cdq5bzc5st5i.eu-north-1.rds.amazonaws.com:5432/"
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://admin:telefon04@database-1.cdq5bzc5st5i.eu-north-1.rds.amazonaws.com/mysql'
+#application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy()
 db.init_app(application)
@@ -475,4 +475,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    application.run(host="0.0.0.0", port=80, debug=True)
+    application.run(debug=True)
