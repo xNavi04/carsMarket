@@ -16,9 +16,7 @@ from sqlalchemy import or_, and_
 application = Flask(__name__)
 Bootstrap5(application)
 application.config['SECRET_KEY'] = "adfa789y6789dsagfghjkdf"
-application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://admin:telefon04@database-1.cdq5bzc5st5i.eu-north-1.rds.amazonaws.com/mysql'
-#application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
-application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
 db = SQLAlchemy()
 db.init_app(application)
 CKEditor(application)
