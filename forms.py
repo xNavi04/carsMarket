@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, FileField, IntegerField
-from wtforms.validators import DataRequired, NumberRange, Length
+from wtforms.validators import DataRequired, NumberRange, Length, Email
 from flask_ckeditor import CKEditorField
 from flask_wtf.file import FileRequired
 
@@ -17,4 +17,11 @@ class CreateCars(FlaskForm):
 
 class ChooseBrand(FlaskForm):
     brand = SelectField("Brand", choices=[("BMW", "BMW"), ("AUDI", "AUDI"), ("MERCEDES", "MERCEDES"), ("LAMBORGHINI", "LAMBORGHINI"), ("FERRARI", "FERRARI")])
+    submit = SubmitField("Confirm")
+
+
+class EditProfile(FlaskForm):
+    username = StringField("Username", validators=[DataRequired()])
+    email = StringField("Email")
+    file = FileField("Image")
     submit = SubmitField("Confirm")

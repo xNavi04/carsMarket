@@ -11,15 +11,18 @@
         <div class="mx-5">
           {{advertisement.description|safe}}
         </div>
-          <p class="mx-5">Numer itd</p>
+          <p class="mx-5" style="font-weight: 600;">Phone number</p>
+          <p class="mx-5">{{advertisement.number}}</p>
         <div class="d-flex justify-content-center mt-5">
+          {% if logged_in %}
+          <a href="{{ url_for('createChat', num=advertisement.owner.id) }}"><button type="button" class="btn btn-outline-light mx-5">Send message to owner</button></a>
+          {% endif %}
           {% if favorite == 2 %}
           {% elif not favorite == 1 %}
           <a href="{{ url_for('addToFavorites', num=advertisement.id) }}"><button type="button" class="btn btn-outline-danger">add to Favorites</button></a>
           {% else %}
           <a href="{{ url_for('deleteFromFavorites', num=advertisement.id) }}"><button type="button" class="btn btn-outline-danger">delete from Favorites</button></a>
           {% endif %}
-          <a href="{{ url_for('createChat', num=advertisement.owner.id) }}"><button type="button" class="btn btn-outline-light mx-5">Send message to owner</button></a>
         </div>
       </div>
     </div>

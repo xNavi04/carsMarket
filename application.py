@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from forms import CreateCars, ChooseBrand
+from forms import CreateCars, ChooseBrand, EditProfile
 from base64 import b64encode
 from datetime import datetime
 from functools import wraps
@@ -61,6 +61,8 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
+    image = db.Column(db.String)
+    image_mimetype = db.Column(db.String)
 
     advertisements = db.relationship("Advertisement", back_populates="owner")
     favoriteAdvertisements = db.relationship("FavoriteAdvertisement", back_populates="owner")
@@ -496,6 +498,23 @@ def contact():
             db.session.commit()
 
     return render_template("contact.html", alerts=alerts, logged_in = current_user.is_authenticated)
+
+@application.route("/edit_profile", methods=["POST", "GET"])
+@login_required
+def editProfile():
+    user = db.get_or_404(User, current_user.id)
+    form = EditProfile(username=current_user.username, email=current_user.email)
+    if form.validate_on_submit():
+        user.username = form.username.data
+        user.email = form.email.data
+        file = form.file.data
+        if file:
+            user.image = file.read()
+            user.image_mimetype = file.mimetype
+        db.session.commit()
+        print("test")
+    return render_template("edit_user.html", logged_in = current_user.is_authenticated, form=form)
+
 
 
 
