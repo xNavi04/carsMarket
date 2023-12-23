@@ -1,4 +1,7 @@
 **CarHub: Your Ultimate Ride Marketplace! 🚗💨**
+
+**!!If you want your submission to be active, it needs to be approved by an administrator in the admin section.  (Admin Section -->> Allow or Deny)**
+
 CarHub is more than just a car marketplace—it's a dynamic Flask-powered platform where enthusiasts connect, trade, and share their automotive passions.
 
 **Highlights:**
