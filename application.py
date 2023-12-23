@@ -183,6 +183,8 @@ def registerPage():
             alerts.append("Password do not match!")
         elif username == "" or email == "" or password == "":
             alerts.append("Something is empty!")
+        elif not "@" in email:
+            alerts.append("Email is wrong!")
         else:
             hashPassword = generate_password_hash(password, salt_length=8)
             new_user = User(username=username, email=email, password=hashPassword)
@@ -527,4 +529,4 @@ def deleteAdvertisement(num):
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run(host="0.0.0.0", port=int("3000"), debug=True)
