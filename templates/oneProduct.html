@@ -13,8 +13,9 @@
         </div>
           <p class="mx-5" style="font-weight: 600;">Phone number</p>
           <p class="mx-5">{{advertisement.number}}</p>
+          <p class="mx-5 my-5">{{advertisement.data}}</p>
         <div class="d-flex justify-content-center mt-5">
-          {% if logged_in %}
+          {% if logged_in and current_user != advertisement.owner %}
           <a href="{{ url_for('createChat', num=advertisement.owner.id) }}"><button type="button" class="btn btn-outline-light mx-5">Send message to owner</button></a>
           {% endif %}
           {% if favorite == 2 %}

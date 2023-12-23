@@ -239,7 +239,7 @@ def addAdvertisement():
         db.session.add(new_advertisement)
         db.session.commit()
         return redirect(url_for("indexPage"))
-    return render_template("searchCar.html", form=form, logged_in=current_user.is_authenticated)
+    return render_template("addCars.html", form=form, logged_in=current_user.is_authenticated)
 #########################>>>>>>>>>>>>>>>>>>>> ADD ADVERTISEMENT <<<<<<<<<<<######################################
 
 
@@ -419,7 +419,7 @@ def createChat(num):
         amount_users = len(room.messages)
         return render_template("chat.html", messages=room.messages, users=users, logged_in=current_user.id, foreign_user=room.owner, amount_users=amount_users, b64encode=b64encode)
     host_user = db.get_or_404(User, num)
-    new_room = Room(owner=current_user, host_user=host_user, data="adsf")
+    new_room = Room(owner=current_user, host_user=host_user, data=datetime.now().strftime("%H:%M  %A"))
     db.session.add(new_room)
     db.session.commit()
     return redirect(url_for("createChat", num=num))
@@ -434,6 +434,10 @@ def deleteChat(num):
         )
     ).first()
     if room:
+        messages = db.session.execute(db.select(Message).where(Message.room_id == room.id)).scalars().all()
+        for message in messages:
+            db.session.delete(message)
+            db.session.commit()
         db.session.delete(room)
         db.session.commit()
         return redirect(url_for("indexPage"))
