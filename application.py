@@ -211,7 +211,6 @@ def logoutPage():
 def carsPage():
     form = ChooseBrand()
     if form.validate_on_submit():
-        print(form.brand.data)
         advertisements = db.session.execute(db.select(Advertisement).where(Advertisement.brand == form.brand.data, Advertisement.verified == 1)).scalars().all()
         return render_template("cars.html", logged_in=current_user.is_authenticated, advertisements=advertisements, b64encode=b64encode, form=form)
     advertisements = db.session.execute(db.select(Advertisement).where(Advertisement.verified == 1)).scalars().all()
@@ -334,7 +333,6 @@ def addToFavorites(num):
 @login_required
 def deleteFromFavorites(num):
     favoriteCar = db.session.execute(db.select(FavoriteAdvertisement).where(FavoriteAdvertisement.advertisement_id == num, FavoriteAdvertisement.user_id == current_user.id)).scalar()
-    print(num)
     db.session.delete(favoriteCar)
     db.session.commit()
     return redirect(url_for("favoriteCars"))
@@ -378,11 +376,9 @@ def createChat(num):
         return abort(404)
     room = db.session.execute(db.select(Room).where(Room.owner_id == current_user.id, Room.user_id == num)).scalar()
     if room:
-        print("1")
         if request.method == "POST":
             chat = request.form["chat"]
             if chat != "":
-                print(f"room0: {room}")
                 new_message = Message(room=room, owner=current_user, context=chat, data=datetime.now().strftime("%H:%M  %A"))
                 db.session.add(new_message)
                 db.session.commit()
@@ -399,14 +395,12 @@ def createChat(num):
                     users.append(user)
         room = db.session.execute(db.select(Room).where(Room.owner_id == current_user.id, Room.user_id == num)).scalar()
         amount_users = len(room.messages)
-        return render_template("chat.html", messages=room.messages, users=users, logged_in=current_user.id, foreign_user=room.host_user, amount_users=amount_users)
+        return render_template("chat.html", messages=room.messages, users=users, logged_in=current_user.id, foreign_user=room.host_user, amount_users=amount_users, b64encode=b64encode)
     room = db.session.execute(db.select(Room).where(Room.owner_id == num, Room.user_id == current_user.id)).scalar()
     if room:
-        print("2")
         if request.method == "POST":
             chat = request.form["chat"]
             if chat != "":
-                print(f"room: {room}")
                 new_message = Message(room=room, owner=current_user, context=chat, data=datetime.now().strftime("%H:%M  %A"))
                 db.session.add(new_message)
                 db.session.commit()
@@ -423,9 +417,8 @@ def createChat(num):
                     users.append(user)
         room = db.session.execute(db.select(Room).where(Room.owner_id == num, Room.user_id == current_user.id)).scalar()
         amount_users = len(room.messages)
-        return render_template("chat.html", messages=room.messages, users=users, logged_in=current_user.id, foreign_user=room.owner, amount_users=amount_users)
+        return render_template("chat.html", messages=room.messages, users=users, logged_in=current_user.id, foreign_user=room.owner, amount_users=amount_users, b64encode=b64encode)
     host_user = db.get_or_404(User, num)
-    print("to")
     new_room = Room(owner=current_user, host_user=host_user, data="adsf")
     db.session.add(new_room)
     db.session.commit()
@@ -456,7 +449,6 @@ def chat():
             and_(Room.user_id == current_user.id)
         )
     ).order_by(Room.id.desc()).first()
-    print(room)
     try:
         if current_user.id == room.owner_id:
             return redirect(url_for("createChat", num=room.user_id))
@@ -481,7 +473,7 @@ def deleteMessage(num, userId):
 #########################>>>>>>>>>>>>>>>>>>>> CHAT PAGE <<<<<<<<<<<######################################
 
 
-
+#########################>>>>>>>>>>>>>>>>>>>> CONTACT PAGE <<<<<<<<<<<######################################
 @application.route("/contact", methods=["POST", "GET"])
 def contact():
     alerts = []
@@ -500,7 +492,10 @@ def contact():
             db.session.commit()
 
     return render_template("contact.html", alerts=alerts, logged_in = current_user.is_authenticated)
+#########################>>>>>>>>>>>>>>>>>>>> CONTACT PAGE <<<<<<<<<<<######################################
 
+
+#########################>>>>>>>>>>>>>>>>>>>> EDIT PROFILE <<<<<<<<<<<######################################
 @application.route("/edit_profile", methods=["POST", "GET"])
 @login_required
 def editProfile():
@@ -514,10 +509,12 @@ def editProfile():
             user.image = file.read()
             user.image_mimetype = file.mimetype
         db.session.commit()
-        print("test")
     return render_template("edit_user.html", logged_in = current_user.is_authenticated, form=form)
+#########################>>>>>>>>>>>>>>>>>>>> EDIT PROFILE <<<<<<<<<<<######################################
 
 
+
+#########################>>>>>>>>>>>>>>>>>>>> DELETE ADVERTISEMENT <<<<<<<<<<<######################################
 @application.route("/deleteAdvertisement/<int:num>")
 def deleteAdvertisement(num):
     advertisement = db.session.execute(db.select(Advertisement).where(Advertisement.id == num)).scalar()
@@ -525,7 +522,7 @@ def deleteAdvertisement(num):
         db.session.delete(advertisement)
         db.session.commit()
         return redirect(url_for("carsPage"))
-
+#########################>>>>>>>>>>>>>>>>>>>> DELETE ADVERTISEMENT <<<<<<<<<<<######################################
 
 
 if __name__ == "__main__":
