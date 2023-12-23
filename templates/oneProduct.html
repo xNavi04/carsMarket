@@ -23,6 +23,9 @@
           {% else %}
           <a href="{{ url_for('deleteFromFavorites', num=advertisement.id) }}"><button type="button" class="btn btn-outline-danger">delete from Favorites</button></a>
           {% endif %}
+          {% if advertisement.owner.id == current_user.id %}
+          <a href="{{ url_for('deleteAdvertisement', num=advertisement.id) }}"><button type="button" class="btn btn-outline-danger mx-5">Delete</button></a>
+          {% endif %}
         </div>
       </div>
     </div>

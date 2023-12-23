@@ -516,6 +516,14 @@ def editProfile():
     return render_template("edit_user.html", logged_in = current_user.is_authenticated, form=form)
 
 
+@application.route("/deleteAdvertisement/<int:num>")
+def deleteAdvertisement(num):
+    advertisement = db.session.execute(db.select(Advertisement).where(Advertisement.id == num)).scalar()
+    if advertisement.owner == current_user:
+        db.session.delete(advertisement)
+        db.session.commit()
+        return redirect(url_for("carsPage"))
+
 
 
 if __name__ == "__main__":
