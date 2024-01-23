@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request, redirect, url_for, abort, Response
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
@@ -15,8 +17,8 @@ from sqlalchemy import or_, and_
 
 application = Flask(__name__)
 Bootstrap5(application)
-application.config['SECRET_KEY'] = "adfa789y6789dsagfghjkdf"
-application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///posts.db"
+application.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+application.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI")
 db = SQLAlchemy()
 db.init_app(application)
 CKEditor(application)
