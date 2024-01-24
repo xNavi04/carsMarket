@@ -1,4 +1,4 @@
-# MiniOtomoto with Chats 🚗
+# CarsMarket with Chats 🚗
 # https://carsmarket.azurewebsites.net/
 
 This program is designed for posting car offers.
@@ -24,7 +24,7 @@ password: User1230
 
 
 
-# MiniOtomoto z chatami 🚗
+# CarsMarket z chatami 🚗
 # https://carsmarket.azurewebsites.net/
 
 Program służy do wystawiania ofert z samochodami. 
