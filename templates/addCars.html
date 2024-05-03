@@ -2,7 +2,7 @@
 
 
 {% include 'header.html' %}
-<div class="container col-lg-4" style="margin-top: 150px; margin-bottom: 150px">
+<div class="container col-lg-4" style="margin-top: 100px; margin-bottom: 150px">
     {{ ckeditor.load() }} {{ ckeditor.config(name='body') }}
     {{ render_form(form, novalidate=True) }}
 </div>

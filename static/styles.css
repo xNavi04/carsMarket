@@ -5,11 +5,6 @@ img {
   object-position: center;
 }
 
-body {
-    	background: #7F7FD5;
-	    background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
-	    background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5)
-}
 .navbarFont {
     font-weight: 1000;
 }
@@ -60,6 +55,9 @@ body {
 .card-img-top {
     border-top-left-radius: calc(1rem - 1px);
     border-top-right-radius: calc(1rem - 1px);
+    height: 250px;
+    width: 250px;
+    object-fit: cover;
 }
 
 
@@ -79,7 +77,6 @@ body {
     width: 100%;
     min-height: 250px;
     max-height: 250px;
-    object-fit: contain;
     padding: 30px;
 }
 
@@ -490,4 +487,10 @@ body{
         height: calc(100vh - 350px);
         overflow-x: auto
     }
+}
+
+.equal-sized-image {
+  width: 270px;
+  height: 270px;
+  object-fit: cover;
 }

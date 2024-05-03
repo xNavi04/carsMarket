@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, FileField, IntegerField
-from wtforms.validators import DataRequired, NumberRange, Length, Email
+from wtforms.validators import DataRequired, NumberRange, Length
 from flask_ckeditor import CKEditorField
 from flask_wtf.file import FileRequired
 

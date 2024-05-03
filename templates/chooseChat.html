@@ -1,0 +1,35 @@
+{% include 'header.html' %}
+
+<style>
+  .equal-sized-image {
+  width: 170px;
+  height: 170px;
+  object-fit: cover;
+}
+</style>
+
+<div class="container row align-items-center justify-content-center" style="margin-top: 60px;">
+{% for room in rooms %}
+{% for u in room.participants %}
+{% if u != current_user %}
+<div class="card col-lg-2 col-sm-12 align-items-center" style="padding: 10px; margin: 10px; height: 240px; width: 200px;">
+  {% if u.image %}
+  <img src="data:{{ u.image_mimetype }};base64,{{ b64encode(u.image).decode('utf-8') }}" class="equal-sized-image">
+  {% else %}
+  <img src="{{ url_for('static', filename='user.jpg') }}" class="equal-sized-image">
+  {% endif %}
+  <div class="" style="padding: 0; margin: 0;" >
+    <h5 class="card-title" style="height: 25px;">{{u.username}}</h5>
+    <a href="{{ url_for('chatPage', num=u.id) }}" class="btn btn-primary my-0 px-1" style="font-size: 10px;" data-mdb-ripple-init>Write to user</a>
+    <a href="{{ url_for('deleteChat', num=u.id) }}" class="btn btn-danger my-0 px-1" style="font-size: 10px;" data-mdb-ripple-init>Delete room</a>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endfor %}
+</div>
+
+
+
+</div>
+{% include 'footer.html' %}
